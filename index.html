@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm" action="/login" method="post" onsubmit="return validateForm()">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <input type="submit" value="Login">
+    </form>
+
+    <div id="errorMessage" style="color: red;"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById("loginForm");
+            const errorMessage = document.getElementById("errorMessage");
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                errorMessage.innerHTML = "";
+
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+
+                if (username === "" || password === "") {
+                    errorMessage.innerHTML = "Please fill in both fields.";
+                    return;
+                }
+
+                try {
+                    const response = await fetch("/api/login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        errorMessage.innerHTML = "Login successful!";
+                    } else {
+                        errorMessage.innerHTML = "Invalid username or password.";
+                    }
+                } catch (error) {
+                    errorMessage.innerHTML = "An error occurred while processing your request.";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
